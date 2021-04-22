@@ -1,9 +1,15 @@
 import React, { useState } from "react";
 import { Input, Button } from "@material-ui/core";
+import { useHistory } from "react-router-dom";
 
-export const Authorization: React.FC = () => {
+type AuthProps = {
+  setTokens: Function;
+};
+
+export const Authorization: React.FC<AuthProps> = ({ setTokens }) => {
   const [login, setLogin] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const history = useHistory();
 
   const updateLogin = (data: React.ChangeEvent<HTMLInputElement>) =>
     setLogin(data.currentTarget.value);
@@ -27,8 +33,14 @@ export const Authorization: React.FC = () => {
           }),
         }
       );
-      const result = await response.json();
-      console.log("Успех:", JSON.stringify(result));
+      const result: Promise<any> = response.json();
+
+      result.then((value) => {
+        if (value.success) {
+          setTokens(value.data.token);
+          history.push("/houseList");
+        }
+      });
     } catch (error) {
       console.error("Ошибка:", error);
     }
@@ -36,12 +48,12 @@ export const Authorization: React.FC = () => {
 
   return (
     <form className="auth" onSubmit={sendUserData}>
-      <h1 className="auth__title">Enter</h1>
+      <h1 className="auth__title">Вход</h1>
       <Input
         type="email"
         value={login}
         autoFocus={true}
-        placeholder="Enter email..."
+        placeholder="Введите email..."
         onChange={updateLogin}
         inputProps={{ pattern: "^[a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,4}$" }}
         required
@@ -49,12 +61,12 @@ export const Authorization: React.FC = () => {
       <Input
         type="password"
         value={password}
-        placeholder="Enter password..."
+        placeholder="Введите пароль..."
         onChange={updatePassword}
         required
       />
       <Button type="submit" variant="contained" color="primary">
-        Continue
+        Войти
       </Button>
     </form>
   );
