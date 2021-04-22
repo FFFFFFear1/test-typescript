@@ -1,11 +1,24 @@
 import React from "react";
 import Moment from "moment";
 
+type Links = {
+  currentPage: number;
+  nextPage: number;
+  prevPage: number;
+  lastPage: number;
+  objectsCount: number;
+};
+type House = {
+  id: number;
+  address: string;
+  reestrFlatCount: number;
+  createdAt: string;
+};
 type HouseListHandlerProps = {
-  houses: Array<Object>;
+  houses: Array<House>;
   getObjects: Function;
-  curCompany: any | undefined;
-  links: any;
+  curCompany: Object | undefined;
+  links: Links;
 };
 
 export const HouseListHandler: React.FC<HouseListHandlerProps> = ({
@@ -40,7 +53,7 @@ export const HouseListHandler: React.FC<HouseListHandlerProps> = ({
               </tr>
             </thead>
             <tbody className="house-list__container__item__info">
-              {houses.map((house: any) => (
+              {houses.map((house: House) => (
                 <tr key={house.id}>
                   <td>{house.id}</td>
                   <td>{house.address}</td>

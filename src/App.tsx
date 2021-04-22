@@ -4,11 +4,22 @@ import { HouseList } from "./components/HouseList";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import "./styles.scss";
 
-const App: React.FC = () => {
-  const [token, setToken] = useState<any>({});
+type Token = {
+  refresh: string;
+  access: string;
+};
 
-  function setTokens(token: object) {
-    setToken(token);
+const App: React.FC = () => {
+  const [token, setToken] = useState<Token>({
+    refresh: "",
+    access: "",
+  });
+
+  function setTokens(refreshToken: string, accessToken: string) {
+    setToken({
+      refresh: refreshToken,
+      access: accessToken,
+    });
   }
 
   return (
@@ -20,10 +31,7 @@ const App: React.FC = () => {
           </Route>
           <Route path="/houseList">
             <HouseList
-              token={{
-                refresh: token.refresh,
-                access: token.access,
-              }}
+              token={token}
             />
           </Route>
         </Switch>

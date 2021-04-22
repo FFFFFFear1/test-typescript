@@ -4,32 +4,60 @@ import NativeSelect from "@material-ui/core/NativeSelect";
 import { HouseListHandler } from "./HouseListHandler";
 
 type HouseListProps = {
-  token: {
-    refresh: string;
-    access: string;
-  };
+  token: Token;
+};
+type Token = {
+  refresh: string;
+  access: string;
+};
+type Links = {
+  currentPage: number;
+  nextPage: number;
+  prevPage: number;
+  lastPage: number;
+  objectsCount: number;
+};
+type Data = {
+  data: [];
+  links: Links;
+};
+type Companys = {
+  data: [];
+};
+type Company = {
+  id: number;
+  name: string;
+};
+type House = {
+  id: number;
+  address: string;
+  reestrFlatCount: number;
+  createdAt: string;
 };
 
-
 export const HouseList: React.FC<HouseListProps> = ({ token }) => {
-  const [companies, setCompanies] = useState<[]>([]);
-  const [houses, setHouses] = useState<[]>([]);
-  const [links, setLinks] = useState<any>();
-  const [curCompany, setCurCompany] = useState<Object>();
+  const [companies, setCompanies] = useState<Array<Company>>([]);
+  const [houses, setHouses] = useState<Array<House>>([]);
+  const [links, setLinks] = useState<Links>({
+    currentPage: 0,
+    nextPage: 0,
+    prevPage: 0,
+    lastPage: 0,
+    objectsCount: 0,
+  });
+  const [curCompany, setCurCompany] = useState<Company>();
 
-  // React.ChangeEvent<HTMLSelectElement>
   async function updateCompany(data: React.ChangeEvent<HTMLSelectElement>) {
     const company: any = companies.find(
-      (item: any) => item.name === data.currentTarget.value
+      (item: Company) => item.name === data.currentTarget.value
     );
     setCurCompany(company);
     getObjects(company, 1);
   }
 
-  async function getObjects(company: any, curPage: number) {
+  async function getObjects(company: Company, curPage: number) {
     try {
       const response = await fetch(
-        // переключение страниц делать тут
         "http://test-alpha.reestrdoma.ru/api/reestrdoma/company/houses/" +
           `${company.id}` +
           "/?page=" +
@@ -44,9 +72,9 @@ export const HouseList: React.FC<HouseListProps> = ({ token }) => {
           },
         }
       );
-      const result: Promise<any> = response.json();
+      const result: Promise<Data> = response.json();
       result.then((value) => {
-        if (value.length !== 0) {
+        if (value.data.length !== 0) {
           setHouses(value.data);
           setLinks(value.links);
         }
@@ -68,9 +96,9 @@ export const HouseList: React.FC<HouseListProps> = ({ token }) => {
           },
         }
       );
-      const result: Promise<any> = response.json();
+      const result: Promise<Companys> = response.json();
       result.then((value) => {
-        if (value.length !== 0) {
+        if (value.data.length !== 0) {
           setCompanies(value.data);
         }
       });
@@ -80,14 +108,14 @@ export const HouseList: React.FC<HouseListProps> = ({ token }) => {
   }
 
   useEffect(() => {
-    if (token.access !== undefined) {
+    if (token.access.trim()) {
       getCompanies();
     }
   }, []);
 
   return (
     <div className="house-list__container">
-      {token.access === undefined ? (
+      {!token.access.trim() ? (
         <div className="house-list__container__auth-placeholder">
           <h1>Пожалуйста авторизуйтесь</h1>
           <NavLink to="/">Войти</NavLink>
@@ -99,12 +127,12 @@ export const HouseList: React.FC<HouseListProps> = ({ token }) => {
             <NativeSelect
               defaultValue={1}
               id="demo-controlled-open-select"
-              onChange={(value: any) => updateCompany(value)}
+              onChange={(value) => updateCompany(value)}
             >
               <option value={1} disabled>
                 Выберите компанию...
               </option>
-              {companies.map((item: any) => {
+              {companies.map((item: Company) => {
                 return (
                   <option key={item.id} value={item.name}>
                     {item.name}

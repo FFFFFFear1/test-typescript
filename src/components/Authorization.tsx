@@ -5,6 +5,16 @@ import { useHistory } from "react-router-dom";
 type AuthProps = {
   setTokens: Function;
 };
+type Data = {
+  success: boolean;
+  data: {
+    token: Token;
+  };
+};
+type Token = {
+  refresh: string;
+  access: string;
+};
 
 export const Authorization: React.FC<AuthProps> = ({ setTokens }) => {
   const [login, setLogin] = useState<string>("");
@@ -18,7 +28,6 @@ export const Authorization: React.FC<AuthProps> = ({ setTokens }) => {
 
   async function sendUserData(data: React.FormEvent<HTMLFormElement>) {
     data.preventDefault();
-
     try {
       const response = await fetch(
         "http://test-alpha.reestrdoma.ru/api/login/",
@@ -33,16 +42,15 @@ export const Authorization: React.FC<AuthProps> = ({ setTokens }) => {
           }),
         }
       );
-      const result: Promise<any> = response.json();
-
+      const result: Promise<Data> = response.json();
       result.then((value) => {
         if (value.success) {
-          setTokens(value.data.token);
+          setTokens(value.data.token.refresh, value.data.token.access);
           history.push("/houseList");
         }
       });
     } catch (error) {
-      console.error("Ошибка:", error);
+      console.error("Error:", error);
     }
   }
 
@@ -53,7 +61,7 @@ export const Authorization: React.FC<AuthProps> = ({ setTokens }) => {
         type="email"
         value={login}
         autoFocus={true}
-        placeholder="Введите email..."
+        placeholder="Для теста superuser@mail.ru..."
         onChange={updateLogin}
         inputProps={{ pattern: "^[a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,4}$" }}
         required
@@ -61,7 +69,7 @@ export const Authorization: React.FC<AuthProps> = ({ setTokens }) => {
       <Input
         type="password"
         value={password}
-        placeholder="Введите пароль..."
+        placeholder="Для теста 11111111..."
         onChange={updatePassword}
         required
       />
